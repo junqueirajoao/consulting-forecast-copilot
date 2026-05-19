@@ -51,10 +51,10 @@ A aplicação é dividida em duas partes: frontend (React) e backend (FastAPI).
 │                                     │
 │  ┌────────────────────────────────┐ │
 │  │          Orquestrador          │ │
-│  └────┬──────┬──────┬─────┬──────┘ │
-│       │      │      │     │        │
-│  Ingestão Intent  Cálculo Resposta  │
-│  Agent  Agent   Agent    Agent      │
+│  └─┬─────┬─────┬─────┬─────┬─────┘ │
+│    │     │     │     │     │      │
+│  Ing.  Int.  Math  Cal. Resp.       │
+│  Agent Agent Agent Agent Agent      │
 │                                     │
 │  ┌─────────────────────────────┐   │
 │  │      Excel (.xlsx)          │   │
@@ -62,14 +62,15 @@ A aplicação é dividida em duas partes: frontend (React) e backend (FastAPI).
 └─────────────────────────────────────┘
 ```
 
-### Os 4 Agentes do Backend
+### Os 5 Agentes/Módulos do Backend
 
-| Agente | Responsabilidade |
+| Agente/Módulo | Responsabilidade |
 |---|---|
 | **Ingestion Agent** | Lê todas as abas do Excel e consolida em um único DataFrame |
 | **Intent Agent** | Interpreta a pergunta do usuário e identifica a intenção (faturamento total, por consultor, projeção, etc.) |
-| **Math Agent** | Executa os cálculos de receita, dias úteis, projeções |
+| **Math Agent** | Executa os cálculos de receita, faturamento, projeções e apoio aos dias trabalhados |
 | **Response Agent** | Formata o resultado em linguagem natural em português |
+| **Calendar Agent** | Calcula dias úteis com base no calendário brasileiro/ANBIMA e apoia perguntas sobre mês útil e dias trabalhados |
 
 ---
 
