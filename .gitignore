@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+dist/
+
+# macOS
+.DS_Store
+
+# Dados sensíveis
+backend/data/uploads/*.xlsx
+backend/data/uploads/*.xls
+backend/data/*.xlsx
+backend/data/*.xls

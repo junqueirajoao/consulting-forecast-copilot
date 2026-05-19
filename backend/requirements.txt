@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pandas
+openpyxl
+anbima_calendar
+python-dotenv
+rapidfuzz
+pytest
