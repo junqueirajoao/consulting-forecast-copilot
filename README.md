@@ -1,133 +1,134 @@
 # Consulting Forecast Copilot
 
-Sistema multiagente de análise de faturamento para consultorias. Permite fazer perguntas em linguagem natural sobre receita, consultores e times a partir de uma planilha Excel — e também visualizar os dados diretamente na interface.
+A multi-agent system for consulting revenue analysis. Ask questions in natural language about billing, consultants, and teams — directly from an Excel spreadsheet — and visualize the data in a clean web interface.
 
 ---
 
-## Sumário
+## Table of Contents
 
-- [Visão Geral](#visão-geral)
-- [Arquitetura](#arquitetura)
-- [Pré-requisitos](#pré-requisitos)
-- [Instalação](#instalação)
-- [Como Usar](#como-usar)
-- [Estrutura do Excel](#estrutura-do-excel)
-- [Endpoints da API](#endpoints-da-api)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Exemplos de Perguntas](#exemplos-de-perguntas)
-
----
-
-## Visão Geral
-
-O **Consulting Forecast Copilot** é uma aplicação web que combina:
-
-- **Chat com IA**: faça perguntas em português sobre faturamento, times e consultores
-- **Visualização de dados**: explore a tabela do Excel diretamente na interface, com filtros por mês e busca
-- **Análise multiagente**: uma cadeia de agentes especialistas interpreta sua pergunta, calcula o resultado e gera uma resposta clara
-
-**Exemplo de uso:**
-> *"Qual é o faturamento total do mês de abril?"*
-> → *"O faturamento total do projeto em 2026-04 foi de R$ 135.360,00, com 8 consultores ativos em 22 dias úteis."*
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Excel Structure](#excel-structure)
+- [API Endpoints](#api-endpoints)
+- [Project Structure](#project-structure)
+- [Supported Intents](#supported-intents)
+- [Query Examples](#query-examples)
+- [Tech Stack](#tech-stack)
 
 ---
 
-## Arquitetura
+## Overview
 
-A aplicação é dividida em duas partes: frontend (React) e backend (FastAPI).
+**Consulting Forecast Copilot** is a full-stack web application combining:
+
+- **AI Chat**: ask questions in Portuguese about revenue, teams, and consultants
+- **Data Viewer**: explore the Excel spreadsheet directly in the UI with month filters and search
+- **Multi-agent pipeline**: a chain of specialized agents interprets your question, performs calculations, and returns a clear natural-language answer
+
+**Example:**
+> *"What is the total revenue for April?"*
+> → *"The total project revenue for 2026-04 was R$ 135,360.00, with 8 active consultants across 22 business days."*
+
+---
+
+## Architecture
+
+The application is split into two parts: a React frontend and a FastAPI backend.
 
 ```
 ┌─────────────────────────────────────┐
 │           Frontend (React)          │
 │                                     │
 │  ┌──────────┐    ┌───────────────┐  │
-│  │ Aba Chat │    │  Aba Dados    │  │
-│  │          │    │  (tabela do   │  │
-│  │ InputBar │    │   Excel)      │  │
+│  │ Chat Tab │    │   Data Tab    │  │
+│  │          │    │  (Excel table)│  │
+│  │ InputBar │    │               │  │
 │  └──────────┘    └───────────────┘  │
 └──────────────────────┤ HTTP (REST)├──────
 ┌─────────────────────────────────────┐
 │           Backend (FastAPI)         │
 │                                     │
 │  ┌────────────────────────────────┐ │
-│  │          Orquestrador          │ │
+│  │           Orchestrator          │ │
 │  └─┬─────┬─────┬─────┬─────┬─────┘ │
 │    │     │     │     │     │      │
 │  Ing.  Int.  Math  Cal. Resp.       │
 │  Agent Agent Agent Agent Agent      │
 │                                     │
 │  ┌─────────────────────────────┐   │
-│  │      Excel (.xlsx)          │   │
+│  │      Excel (.xlsx)           │   │
 │  └─────────────────────────────┘   │
 └─────────────────────────────────────┘
 ```
 
-### Os 5 Agentes/Módulos do Backend
+### The 5 Backend Agents
 
-| Agente/Módulo | Responsabilidade |
+| Agent | Responsibility |
 |---|---|
-| **Ingestion Agent** | Lê todas as abas do Excel e consolida em um único DataFrame |
-| **Intent Agent** | Interpreta a pergunta do usuário e identifica a intenção (faturamento total, por consultor, projeção, etc.) |
-| **Math Agent** | Executa os cálculos de receita, faturamento, projeções e apoio aos dias trabalhados |
-| **Response Agent** | Formata o resultado em linguagem natural em português |
-| **Calendar Agent** | Calcula dias úteis com base no calendário brasileiro/ANBIMA e apoia perguntas sobre mês útil e dias trabalhados |
+| **Ingestion Agent** | Reads all Excel sheets and consolidates into a single DataFrame |
+| **Intent Agent** | Parses the natural language question and identifies the intent using regex + fuzzy matching |
+| **Math Agent** | Performs revenue calculations, projections, and days-worked computations |
+| **Calendar Agent** | Calculates business days using the Brazilian/ANBIMA calendar |
+| **Response Agent** | Formats the numeric result into a clear natural-language answer in Portuguese |
 
 ---
 
-## Pré-requisitos
+## Requirements
 
-- **Python** 3.10 ou superior
-- **Node.js** 18 ou superior
-- **npm** 9 ou superior
+- **Python** 3.10+
+- **Node.js** 18+
+- **npm** 9+
 
 ---
 
-## Instalação
+## Installation
 
-### 1. Clone o repositório
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/seu-usuario/consulting-forecast-copilot.git
+git clone https://github.com/your-username/consulting-forecast-copilot.git
 cd consulting-forecast-copilot
 ```
 
-### 2. Configure o Backend
+### 2. Set up the Backend
 
 ```bash
 cd backend
 
-# Crie e ative o ambiente virtual
+# Create and activate virtual environment
 python3 -m venv venv
 source venv/bin/activate  # Linux/macOS
-# ou
+# or
 venv\Scripts\activate     # Windows
 
-# Instale as dependências
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-Crie o arquivo `.env` na pasta `backend/`:
+Create a `.env` file inside `backend/`:
 
 ```env
 EXCEL_PATH=data/ficticio.xlsx
 DEFAULT_YEAR=2026
 DEFAULT_MONTH=4
+APP_ENV=dev
 ```
 
-### 3. Configure o Frontend
+### 3. Set up the Frontend
 
 ```bash
 cd ../frontend
-
-# Instale as dependências
 npm install
 ```
 
 ---
 
-## Como Usar
+## Usage
 
-### Inicie o Backend
+### Start the Backend
 
 ```bash
 cd backend
@@ -135,92 +136,97 @@ source venv/bin/activate
 uvicorn app.main:app --reload --port 8000
 ```
 
-O backend estará disponível em: `http://127.0.0.1:8000`
-Documentação interativa da API: `http://127.0.0.1:8000/docs`
+Backend available at: `http://127.0.0.1:8000`  
+Interactive API docs: `http://127.0.0.1:8000/docs`
 
-### Inicie o Frontend
+### Start the Frontend
 
-Em outro terminal:
+In a separate terminal:
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-O frontend estará disponível em: `http://localhost:5173`
+Frontend available at: `http://localhost:5173`
 
-### Importe seu Excel
+### Import your Excel file
 
-1. Abra o navegador em `http://localhost:5173`
-2. Clique em **Importar Excel** no canto superior direito
-3. Selecione seu arquivo `.xlsx`
-4. Após o upload, use o **Chat** para fazer perguntas ou clique na aba **Dados** para visualizar a tabela
+1. Open `http://localhost:5173` in your browser
+2. Click **Importar Excel** in the top-right corner
+3. Select your `.xlsx` file
+4. Use the **Chat** tab to ask questions or switch to **Dados** to browse the table
+
+### Run Tests
+
+```bash
+cd backend
+pytest tests/ -v
+```
 
 ---
 
-## Estrutura do Excel
+## Excel Structure
 
-O arquivo Excel deve seguir o seguinte formato:
+- **Each sheet represents one month**, named in the format `YYYY-MM` (e.g. `2026-03`, `2026-04`)
+- **Required columns** in each sheet:
 
-- **Cada aba representa um mês**, nomeada no padrão `YYYY-MM` (ex: `2026-03`, `2026-04`)
-- **Colunas obrigatórias** em cada aba:
-
-| Coluna | Tipo | Descrição |
+| Column | Type | Description |
 |---|---|---|
-| `Consultor` | Texto | Nome completo do consultor |
-| `Time` | Texto | Nome do time/squad |
-| `Receita Diária` | Número | Valor diário em R$ |
-| `Receita Mensal Estimada` | Número | Receita estimada para o mês |
+| `Consultor` | Text | Full name of the consultant |
+| `Time` | Text | Team/squad name |
+| `Receita Diária` | Number | Daily rate in BRL |
+| `Receita Mensal Estimada` | Number | Estimated monthly revenue |
 
-- **Colunas opcionais:**
+- **Optional columns:**
 
-| Coluna | Tipo | Descrição |
+| Column | Type | Description |
 |---|---|---|
-| `Data de Entrada` | Data | Início do consultor no projeto |
-| `Data de Saída` | Data | Saída do consultor (se aplicável) |
+| `Data de Entrada` | Date | Consultant start date on the project |
+| `Data de Saída` | Date | Consultant end date (if applicable) |
 
-**Exemplo de estrutura:**
+**Example:**
 
 | Consultor | Time | Receita Diária | Receita Mensal Estimada | Data de Entrada |
 |---|---|---|---|---|
-| Ana Costa | Backend | 850 | 18.700 | 01/01/2026 |
-| Bruno Lima | Frontend | 780 | 17.160 | 15/02/2026 |
+| Ana Costa | Backend | 850 | 18,700 | 01/01/2026 |
+| Bruno Lima | Frontend | 780 | 17,160 | 15/02/2026 |
 
 ---
 
-## Endpoints da API
+## API Endpoints
 
-| Método | Rota | Descrição |
+| Method | Route | Description |
 |---|---|---|
 | `GET` | `/` | Health check |
-| `POST` | `/upload` | Faz upload de um arquivo `.xlsx` |
-| `GET` | `/sheets` | Lista as abas disponíveis no Excel |
-| `GET` | `/consultores` | Lista todos os consultores |
-| `GET` | `/times` | Lista todos os times |
-| `GET` | `/dados` | Retorna todos os registros do Excel como JSON |
-| `GET` | `/dados?aba=2026-04` | Filtra registros por aba (mês) |
-| `POST` | `/query` | Processa uma pergunta em linguagem natural |
+| `POST` | `/upload` | Upload a `.xlsx` file |
+| `GET` | `/sheets` | List available sheets |
+| `GET` | `/consultores` | List all consultants |
+| `GET` | `/times` | List all teams |
+| `GET` | `/dados` | Return all records as JSON |
+| `GET` | `/dados?aba=2026-04` | Filter records by sheet (month) |
+| `POST` | `/query` | Process a natural language question |
 
-### Exemplo de requisição ao `/query`
+### Request example
 
 ```json
 POST /query
 {
-  "pergunta": "Qual o faturamento total de abril?",
+  "pergunta": "What is the total revenue for April?",
   "mes_referencia": "2026-04"
 }
 ```
 
-### Exemplo de resposta
+### Response example
 
 ```json
 {
   "intent": "faturamento_total",
   "mes_referencia": "2026-04",
   "resultado": {
-    "total": 135360.0,
-    "consultores_ativos": 8,
-    "dias_uteis": 22
+    "faturamento_total": 135360.0,
+    "total_consultores": 8,
+    "dias_uteis_mes": 22
   },
   "resposta_texto": "O faturamento total do projeto em 2026-04 foi de R$ 135.360,00, com 8 consultores ativos em 22 dias úteis.",
   "premissas": {
@@ -233,7 +239,7 @@ POST /query
 
 ---
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 consulting-forecast-copilot/
@@ -241,87 +247,105 @@ consulting-forecast-copilot/
 ├── backend/
 │   ├── app/
 │   │   ├── agents/
-│   │   │   ├── ingestion_agent.py   # Lê e consolida o Excel
-│   │   │   ├── intent_agent.py      # Interpreta a intenção da pergunta
-│   │   │   ├── math_agent.py        # Cálculos de faturamento
-│   │   │   ├── response_agent.py    # Geração de resposta em texto
-│   │   │   └── calendar_agent.py    # Cálculo de dias úteis (ANBIMA)
+│   │   │   ├── ingestion_agent.py   # Reads and consolidates the Excel
+│   │   │   ├── intent_agent.py      # Parses natural language intent
+│   │   │   ├── math_agent.py        # Revenue and projection calculations
+│   │   │   ├── calendar_agent.py    # Brazilian business day calendar (ANBIMA)
+│   │   │   └── response_agent.py    # Natural language response generation
 │   │   ├── models/
-│   │   │   ├── schemas.py           # Modelos Pydantic (request/response)
-│   │   │   └── enums.py             # Enumerações de intenções
-│   │   ├── config.py                # Configurações e variáveis de ambiente
-│   │   ├── orchestrator.py          # Coordena os agentes em sequência
-│   │   └── main.py                  # Rotas FastAPI
+│   │   │   ├── schemas.py           # Pydantic request/response models
+│   │   │   └── enums.py             # Intent enum definitions
+│   │   ├── config.py                # Environment variables
+│   │   ├── orchestrator.py          # Coordinates the agent pipeline
+│   │   └── main.py                  # FastAPI routes
 │   ├── data/
-│   │   └── uploads/                 # Excel carregado via upload
+│   │   └── uploads/                 # Excel files uploaded at runtime
 │   ├── tests/
-│   │   └── test_math.py             # Testes unitários
+│   │   └── test_math.py             # Unit tests
 │   ├── requirements.txt
 │   └── .env
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── ChatWindow.jsx       # Janela de conversa
-│   │   │   ├── MessageBubble.jsx    # Balão de mensagem individual
-│   │   │   ├── InputBar.jsx         # Campo de entrada de texto
-│   │   │   ├── UploadBar.jsx        # Botão de importação de Excel
-│   │   │   └── DataTable.jsx        # Tabela de visualização de dados
+│   │   │   ├── ChatWindow.jsx       # Conversation window
+│   │   │   ├── MessageBubble.jsx    # Individual message bubble
+│   │   │   ├── InputBar.jsx         # Text input field
+│   │   │   ├── UploadBar.jsx        # Excel import button
+│   │   │   └── DataTable.jsx        # Data visualization table
 │   │   ├── hooks/
-│   │   │   └── useChat.js           # Hook de gerenciamento do chat
+│   │   │   └── useChat.js           # Chat state management hook
 │   │   ├── services/
-│   │   │   └── api.js               # Funções de chamada à API
-│   │   └── App.jsx              # Componente raiz com navegação por abas
+│   │   │   └── api.js               # API call functions
+│   │   └── App.jsx              # Root component with tab navigation
 │   ├── package.json
 │   └── vite.config.js
 │
-└── README.md
+├── README.md
+└── README-PT.md             # Portuguese version
 ```
 
 ---
 
-## Exemplos de Perguntas
+## Supported Intents
 
-O sistema entende perguntas em linguagem natural em português:
+The Intent Agent recognizes the following query types:
 
-**Faturamento geral:**
-- *"Qual é o faturamento total do mês de abril?"*
-- *"Quanto o projeto faturou em março?"*
-
-**Por consultor:**
-- *"Quanto a Ana Costa faturou em abril?"*
-- *"Qual o faturamento do Bruno e do Diego juntos?"*
-
-**Por time:**
-- *"Qual time mais faturou em maio?"*
-- *"Quanto o time de Backend faturou?"*
-
-**Projeções:**
-- *"Se o Diego sair, qual seria o faturamento de maio?"*
-- *"Se entrar um consultor com R$ 900/dia, qual a projeção?"*
-
-**Calendário:**
-- *"Quantos dias úteis tem abril?"*
-- *"Quantos dias o Bruno trabalhou em março?"*
+| Intent | Description | Example |
+|---|---|---|
+| `faturamento_total` | Total project revenue for a month | *"Total revenue for April"* |
+| `faturamento_consultor` | Revenue for a specific consultant | *"How much did Ana earn in March?"* |
+| `faturamento_multiplos_consultores` | Combined revenue for multiple consultants | *"Bruno and Diego's revenue in April"* |
+| `faturamento_time` | Revenue breakdown by team | *"How much did the Backend team earn?"* |
+| `time_mais_faturou` | Top-earning team | *"Which team earned the most?"* |
+| `comparacao_times` | Ranking/comparison of all teams | *"Team revenue ranking for May"* |
+| `dias_uteis_mes` | Number of business days in a month | *"How many business days in April?"* |
+| `dias_trabalhados_consultor` | Business days worked by a consultant | *"How many days did Bruno work?"* |
+| `projecao_sem_consultor` | Revenue projection after a consultant leaves | *"If Diego leaves, what is May's revenue?"* |
+| `projecao_com_novos` | Revenue projection with new consultants added | *"If 2 consultants join at R$800/day, what's the forecast?"* |
 
 ---
 
-## Tecnologias Utilizadas
+## Query Examples
+
+**General revenue:**
+- *"What is the total revenue for April?"*
+- *"How much did the project earn in March?"*
+
+**By consultant:**
+- *"How much did Ana Costa earn in April?"*
+- *"Bruno and Diego's combined revenue"*
+
+**By team:**
+- *"Which team earned the most in May?"*
+- *"Backend team revenue for April"*
+
+**Projections:**
+- *"If Diego leaves, what is May's projected revenue?"*
+- *"If a consultant joins at R$900/day, what is the forecast?"*
+
+**Calendar:**
+- *"How many business days does April have?"*
+- *"How many days did Bruno work in March?"*
+
+---
+
+## Tech Stack
 
 **Backend:**
-- [FastAPI](https://fastapi.tiangolo.com/) — framework web assíncrono
-- [Pandas](https://pandas.pydata.org/) — manipulação de dados
-- [anbima_calendar](https://pypi.org/project/anbima-calendar/) — calendário de dias úteis brasileiro
-- [RapidFuzz](https://github.com/maxbachmann/RapidFuzz) — busca fuzzy de nomes de consultores
-- [Uvicorn](https://www.uvicorn.org/) — servidor ASGI
+- [FastAPI](https://fastapi.tiangolo.com/) — async REST framework
+- [Pandas](https://pandas.pydata.org/) — data manipulation
+- [anbima_calendar](https://pypi.org/project/anbima-calendar/) — Brazilian business day calendar
+- [RapidFuzz](https://github.com/maxbachmann/RapidFuzz) — fuzzy name matching
+- [Uvicorn](https://www.uvicorn.org/) — ASGI server
 
 **Frontend:**
-- [React 18](https://react.dev/) — biblioteca de interface
-- [Vite](https://vitejs.dev/) — bundler e dev server
-- [IBM Plex Sans / Mono](https://fonts.google.com/specimen/IBM+Plex+Sans) — tipografia
+- [React 18](https://react.dev/) — UI library
+- [Vite](https://vitejs.dev/) — build tool and dev server
+- [IBM Plex Sans / Mono](https://fonts.google.com/specimen/IBM+Plex+Sans) — typography
 
 ---
 
-## Licença
+## License
 
 MIT
